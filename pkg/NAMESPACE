@@ -1,0 +1,54 @@
+exportClasses(
+  "CDEPD",
+  "CDEPS",
+  "CLPD",
+  "CLPS"
+)
+
+export(
+  "DEP",
+  "LPD",
+  "validDEP",
+  "validLPD"
+)
+
+exportMethods(
+  "addCon",
+  "addTheta",
+  "addVar",
+  "checkAddFeasCut",
+  "checkAddOptCut",
+  "createRhsSubLP",
+  "createSubLP",
+  "dropCutsMP",
+  "EVPI",
+  "getA",
+  "getBounds",
+  "getDecVar",
+  "getDep",
+  "getDir",
+  "getH",
+  "getK",
+  "getMax",
+  "getMP",
+  "getObj",
+  "getOpt",
+  "getPar",
+  "getProb",
+  "getQ",
+  "getRhs",
+  "getStatus",
+  "getSubLP",
+  "getTech",
+  "getW",
+  "gt2lt",
+  "iq2eq",
+  "lt2gt",
+  "Primal2Dual",
+  "show",
+  "solveDEP",
+  "solveLPD",
+  "solveExpVal",
+  "solvePerfInf",
+  "VSS"
+)
