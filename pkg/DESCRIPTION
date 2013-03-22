@@ -1,8 +1,8 @@
-Package: TSSP
+Package: tssp
 Type: Package
 Title: Two-Stage Stochastic Programs
-Version: 0.1-0
-Date: 2013-03-15
+Version: 0.1-1
+Date: 2013-03-21
 Authors@R: c(person("Bernhard", "Pfaff", role = c("aut", "cre"), email
         = "bernhard@pfaffikus.de"))
 Author: Bernhard Pfaff
@@ -10,4 +10,9 @@ Maintainer: Bernhard Pfaff <bernhard@pfaffikus.de>
 Description: This package provides S4-classes and methods for defining, manipulation and solving two-stage linear programs with fixed recourse.  
 Depends: R (>= 2.15), methods, Rglpk
 License: GPL (>= 2)
-Packaged: 2013-03-15 14:40:12 UTC; pfaffb
+Packaged: 2013-03-21 11:42:34 UTC; pfaffb
+Repository: R-Forge
+Repository/R-Forge/Project: tssp
+Repository/R-Forge/Revision: 2
+Repository/R-Forge/DateTimeStamp: 2013-03-15 23:03:18
+Date/Publication: 2013-03-15 23:03:18
