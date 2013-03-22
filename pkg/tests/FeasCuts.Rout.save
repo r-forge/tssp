@@ -1,0 +1,107 @@
+
+R version 2.15.3 (2013-03-01) -- "Security Blanket"
+Copyright (C) 2013 The R Foundation for Statistical Computing
+ISBN 3-900051-07-0
+Platform: i486-pc-linux-gnu (32-bit)
+
+R ist freie Software und kommt OHNE JEGLICHE GARANTIE.
+Sie sind eingeladen, es unter bestimmten Bedingungen weiter zu verbreiten.
+Tippen Sie 'license()' or 'licence()' für Details dazu.
+
+R ist ein Gemeinschaftsprojekt mit vielen Beitragenden.
+Tippen Sie 'contributors()' für mehr Information und 'citation()',
+um zu erfahren, wie R oder R packages in Publikationen zitiert werden können.
+
+Tippen Sie 'demo()' für einige Demos, 'help()' für on-line Hilfe, oder
+'help.start()' für eine HTML Browserschnittstelle zur Hilfe.
+Tippen Sie 'q()', um R zu verlassen.
+
+[Vorher gesicherter Workspace wiederhergestellt]
+
+> library(tssp)
+Lade nötiges Paket: Rglpk
+Lade nötiges Paket: slam
+Using the GLPK callable library version 4.47
+> ##
+> ## Example for feasability cuts
+> ## (Example 4.2 in Birge)
+> ##
+> ## Master problem
+> obj <- c(3, 2)
+> A <- diag(2)
+> dir <- c(">=", ">=")
+> rhs <- c(0, 0)
+> MP <- LPD(obj, A, dir, rhs)
+> MPsF <- iq2eq(MP)
+> ## Sub-problems (using slack variables)
+> q <- c(-15, -12)
+> W <- matrix(c(3, 2,
++               2, 5,
++               1, 0,
++               0, 1,
++               1, 0,
++               0, 1),
++             nrow = 6, ncol = 2, byrow = TRUE)
+> Tech <- matrix(c(-1, 0,
++                  0, -1,
++                  0, 0,
++                  0, 0,
++                  0, 0,
++                  0, 0),
++                nrow = 6, ncol = 2, byrow = TRUE)
+> h1 <- c(0, 0, 0.8 * 4, 0.8 * 4, 4, 4)
+> h2 <- c(0, 0, 0.8 * 4, 0.8 * 8, 4, 8)
+> h3 <- c(0, 0, 0.8 * 6, 0.8 * 4, 6, 4)
+> h4 <- c(0, 0, 0.8 * 6, 0.8 * 8, 6, 8)
+> H <- rbind(h1, h2, h3, h4)
+> SubDir <- c("<=", "<=", ">=", ">=", "<=", "<=")
+> object <- DEP(MP = MPsF, q = q, W = W, h = H, SubDir = SubDir, Tech = Tech)
+> FeasCuts <- solveDEP(object)
+> FeasCuts
+Solution of Deterministic Equivalent Program: 
+=============================================
+
+Objective (rounded):  30.94 
+Parameters (rounded):
+     x1      x2      S1      S2   theta 
+  27.20   41.60   27.20   41.60 -133.86 
+
+Status: 0 
+> getDep(FeasCuts)
+Definition of Master Program: 
+=============================
+Variables:  x1, x2, S1, S2, theta 
+Maximization: FALSE 
+
+Objective function (rounded):
+   x1    x2    S1    S2 theta 
+    3     2     0     0     1 
+
+Number of restrictions (total): 11 
+Restrictions (rounded):
+R1:  1*x1 + 0*x2 + -1*S1 + 0*S2 + 0*theta == 0 
+R2:  0*x1 + 1*x2 + 0*S1 + -1*S2 + 0*theta == 0 
+FC:  0.27*x1 + 0.09*x2 + 0*S1 + 0*S2 + 0*theta >= 6.4 
+FC:  0*x1 + 0.5*x2 + 0*S1 + 0*S2 + 0*theta >= 6.4 
+FC:  0*x1 + 0.2*x2 + 0*S1 + 0*S2 + 0*theta >= 4.48 
+FC:  0*x1 + 0.2*x2 + 0*S1 + 0*S2 + 0*theta >= 7.68 
+FC:  0.33*x1 + 0*x2 + 0*S1 + 0*S2 + 0*theta >= 5.33 
+FC:  0.33*x1 + 0*x2 + 0*S1 + 0*S2 + 0*theta >= 7.47 
+FC:  0.33*x1 + 0*x2 + 0*S1 + 0*S2 + 0*theta >= 9.07 
+FC:  0*x1 + 0.2*x2 + 0*S1 + 0*S2 + 0*theta >= 8.32 
+OC:  1.16*x1 + 0.74*x2 + 0*S1 + 0*S2 + 1*theta >= -71.7 
+
+Bounds on variables (rounded):
+       x1  x2  S1  S2 theta
+Lower   0   0   0   0  -Inf
+Upper Inf Inf Inf Inf   Inf
+
+Variables and Dimension of Second Stage Linear Programs: 
+========================================================
+Variables:   
+Count of restrictions: 6 
+Count of scenarios: 4 
+> 
+> proc.time()
+       User      System verstrichen 
+      1.380       0.028       1.396 

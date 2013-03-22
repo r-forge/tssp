@@ -1,0 +1,133 @@
+
+R version 2.15.3 (2013-03-01) -- "Security Blanket"
+Copyright (C) 2013 The R Foundation for Statistical Computing
+ISBN 3-900051-07-0
+Platform: i486-pc-linux-gnu (32-bit)
+
+R ist freie Software und kommt OHNE JEGLICHE GARANTIE.
+Sie sind eingeladen, es unter bestimmten Bedingungen weiter zu verbreiten.
+Tippen Sie 'license()' or 'licence()' für Details dazu.
+
+R ist ein Gemeinschaftsprojekt mit vielen Beitragenden.
+Tippen Sie 'contributors()' für mehr Information und 'citation()',
+um zu erfahren, wie R oder R packages in Publikationen zitiert werden können.
+
+Tippen Sie 'demo()' für einige Demos, 'help()' für on-line Hilfe, oder
+'help.start()' für eine HTML Browserschnittstelle zur Hilfe.
+Tippen Sie 'q()', um R zu verlassen.
+
+> library(tssp)
+Lade nötiges Paket: Rglpk
+Lade nötiges Paket: slam
+Using the GLPK callable library version 4.47
+> ## Formulating LP (single-stage)
+> lpobj <- c(150, 230, 260, 238, -170, 210, -150, -36, -10)
+> names(lpobj) <- c("x1", "x2", "x3", "y1", "w1", "y2", "w2", "w3", "w4")
+> lpA <- matrix(c(1, 1, 1, 0, 0, 0, 0, 0, 0, 
++                 2.5, 0, 0, 1, -1, 0, 0, 0, 0,
++                 0, 3, 0, 0, 0, 1, - 1, 0, 0,
++                 0, 0, 20, 0, 0, 0, 0, -1, -1,
++                 0, 0, 0, 0, 0, 0, 0, 1, 0),
++               nrow = 5, ncol = 9, byrow = TRUE)
+> colnames(lpA) <- names(lpobj)
+> rownames(lpA) <- paste("R", 1:5, sep = "")
+> lpdir <- c("<=", ">=", ">=", ">=", "<=")
+> lprhs <- c(500, 200, 240, 0, 6000)
+> names(lprhs) <- rownames(lpA)
+> LP <- LPD(lpobj, lpA, lpdir, lprhs)
+> LPS <- solveLPD(LP)
+> LPS
+Solution of Linear Program: 
+===========================
+Value of objective (rounded):  -118600 
+Solution (rounded):
+  x1   x2   x3   y1   w1   y2   w2   w3   w4 
+ 120   80  300    0  100    0    0 6000    0 
+
+Status of Solver: 0 
+> ##
+> ## Now, formulating as Two-Stage Problem (DEP)
+> ##
+> ## Objective in master-problem
+> mpobj <- c(150, 230, 260)
+> names(mpobj) <- c("x1", "x2", "x3")
+> ## Constraints in master problem
+> mpA <- matrix(c(1, 1, 1),
++               nrow = 1, ncol = 3, byrow = TRUE)
+> colnames(mpA) <- names(mpobj)
+> rownames(mpA) <- "R1"
+> ## direction in master problem
+> mpdir <- "<="
+> ## rhs in master problem
+> mprhs <- c(500)
+> ## Formulating first-stage problem
+> MP <- LPD(mpobj, mpA, mpdir, mprhs)
+> ## Formulation of second stage problems
+> ## objective is the same for the three scenarios
+> q <- c(170, -238, 150, -210, 36, 10)
+> q <- -1.0 * q
+> names(q) <- c("w1", "y1", "w2", "y2", "w3", "w4")
+> ## recourse matrix
+> W <- matrix(c(-1, 1, 0, 0, 0, 0,
++               0, 0, -1, 1, 0, 0,
++               0, 0, 0, 0, 1, 1,
++               0, 0, 0, 0, 1, 0),
++             nrow = 4, ncol = 6, byrow = TRUE)
+> colnames(W) <- names(q)
+> rownames(W) <- paste("SSR", 1:4, sep = "")
+> ## technology matrixes for the three scenarios
+> ## reflecting the bad, average and good crop yields
+> ## Scenario 1
+> T1 <- matrix(c(3, 0, 0,
++                0, 3.6, 0,
++                0, 0, -24,
++                0, 0, 0),
++              nrow = 4, ncol = 3, byrow = TRUE)
+> colnames(T1) <- names(mpobj)
+> rownames(T1) <- rownames(W)
+> ## Scenario 2
+> T2 <- matrix(c(2.5, 0, 0,
++                0, 3, 0,
++                0, 0, -20,
++                0, 0, 0),
++              nrow = 4, ncol = 3, byrow = TRUE)
+> colnames(T2) <- names(mpobj)
+> rownames(T2) <- rownames(W)
+> ## Scenario 3
+> T3 <- matrix(c(2, 0, 0,
++                0, 2.4, 0,
++                0, 0, -16,
++                0, 0, 0),
++              nrow = 4, ncol = 3, byrow = TRUE)
+> colnames(T3) <- names(mpobj)
+> rownames(T3) <- rownames(W)
+> Tech <- list(T1, T2, T3)
+> ## affine terms on rhs, same in the three scenarios
+> h <- c(200, 240, 0, 6000)
+> names(h) <- rownames(W)
+> ssdir <- c(">=", ">=", "<=", "<=")
+> ## Defining DEP
+> lp2s <- DEP(MP, q, W, h, Tech, SubDir = ssdir)
+> tslp <- solveDEP(lp2s, max.iter = 30)
+> tslp
+Solution of Deterministic Equivalent Program: 
+=============================================
+
+Objective (rounded):  -108390 
+Parameters (rounded):
+     x1      x2      x3      S1   theta 
+    170      80     250       0 -217290 
+
+Status: 0 
+> ## VSS
+> VSS(tslp)
+ VSS 
+1150 
+> ## EVPI
+> EVPI(tslp)
+    EVPI 
+7015.556 
+> 
+> proc.time()
+       User      System verstrichen 
+      2.812       0.032       2.834 

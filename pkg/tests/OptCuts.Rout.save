@@ -1,0 +1,120 @@
+
+R version 2.15.3 (2013-03-01) -- "Security Blanket"
+Copyright (C) 2013 The R Foundation for Statistical Computing
+ISBN 3-900051-07-0
+Platform: i486-pc-linux-gnu (32-bit)
+
+R ist freie Software und kommt OHNE JEGLICHE GARANTIE.
+Sie sind eingeladen, es unter bestimmten Bedingungen weiter zu verbreiten.
+Tippen Sie 'license()' or 'licence()' für Details dazu.
+
+R ist ein Gemeinschaftsprojekt mit vielen Beitragenden.
+Tippen Sie 'contributors()' für mehr Information und 'citation()',
+um zu erfahren, wie R oder R packages in Publikationen zitiert werden können.
+
+Tippen Sie 'demo()' für einige Demos, 'help()' für on-line Hilfe, oder
+'help.start()' für eine HTML Browserschnittstelle zur Hilfe.
+Tippen Sie 'q()', um R zu verlassen.
+
+[Vorher gesicherter Workspace wiederhergestellt]
+
+> library(tssp)
+Lade nötiges Paket: Rglpk
+Lade nötiges Paket: slam
+Using the GLPK callable library version 4.47
+> ##
+> ## Example for optimality cuts
+> ##
+> obj <- c(100, 150)
+> A <- matrix(c(1, 1,
++               1, 0,
++               0, 1),
++             ncol = 2, nrow = 3, byrow = TRUE)
+> dir <- c("<=", ">=", ">=")
+> rhs <- c(120, 40, 20)
+> MLP <- LPD(obj, A, dir, rhs)
+> ## Defining vectors and matrices for second stage
+> W <- matrix(c(6, 10,
++               8, 5,
++               1, 0,
++               0, 1),
++             ncol = 2, byrow = TRUE)
+> Tech <- matrix(c(-60, 0,
++                0, -80,
++                0, 0,
++                0, 0),
++              ncol = 2, byrow = TRUE)
+> ## scenario 1
+> ss1obj <- c(-24, -28)
+> h1 <- c(0, 0, 500, 100)
+> ## scenario 2
+> ss2obj <- c(-28, -32)
+> h2 <- c(0, 0, 300, 300)
+> ## probabilities
+> p <- c(0.4, 0.6)
+> ## combining objective and absolute rhs values
+> q <- rbind(ss1obj, ss2obj)
+> h <- rbind(h1, h2)
+> ## Creating DEP object
+> object <- DEP(MP = MLP, q = q, W = W, h = h, Tech = Tech, prob = p)
+> object
+Definition of Master Program: 
+=============================
+Variables:  x1, x2, S2, S3, S1 
+Maximization: FALSE 
+
+Objective function (rounded):
+ x1  x2  S2  S3  S1 
+100 150   0   0   0 
+
+Number of restrictions (total): 3 
+Restrictions (rounded):
+R1:  1*x1 + 1*x2 + 0*S2 + 0*S3 + 1*S1 == 120 
+R2:  1*x1 + 0*x2 + -1*S2 + 0*S3 + 0*S1 == 40 
+R3:  0*x1 + 1*x2 + 0*S2 + -1*S3 + 0*S1 == 20 
+
+Bounds on variables (rounded):
+       x1  x2  S2  S3  S1
+Lower   0   0   0   0   0
+Upper Inf Inf Inf Inf Inf
+
+Variables and Dimension of Second Stage Linear Programs: 
+========================================================
+Variables:  y1, y2 
+Count of restrictions: 4 
+Count of scenarios: 2 
+> OptCuts <- solveDEP(object)
+> getDep(OptCuts)
+Definition of Master Program: 
+=============================
+Variables:  x1, x2, S2, S3, S1, theta 
+Maximization: FALSE 
+
+Objective function (rounded):
+   x1    x2    S2    S3    S1 theta 
+  100   150     0     0     0     1 
+
+Number of restrictions (total): 7 
+Restrictions (rounded):
+R1:  1*x1 + 1*x2 + 0*S2 + 0*S3 + 1*S1 + 0*theta == 120 
+R2:  1*x1 + 0*x2 + -1*S2 + 0*S3 + 0*S1 + 0*theta == 40 
+R3:  0*x1 + 1*x2 + 0*S2 + -1*S3 + 0*S1 + 0*theta == 20 
+OC:  83.52*x1 + 180.48*x2 + 0*S2 + 0*S3 + 0*S1 + 1*theta >= -520 
+OC:  211.2*x1 + 0*x2 + 0*S2 + 0*S3 + 0*S1 + 1*theta >= -1584 
+OC:  115.2*x1 + 96*x2 + 0*S2 + 0*S3 + 0*S1 + 1*theta >= -2104 
+OC:  133.44*x1 + 130.56*x2 + 0*S2 + 0*S3 + 0*S1 + 1*theta >= 0 
+
+Bounds on variables (rounded):
+       x1  x2  S2  S3  S1 theta
+Lower   0   0   0   0   0  -Inf
+Upper Inf Inf Inf Inf Inf   Inf
+
+Variables and Dimension of Second Stage Linear Programs: 
+========================================================
+Variables:  y1, y2 
+Count of restrictions: 4 
+Count of scenarios: 2 
+> 
+> proc.time()
+       User      System verstrichen 
+      1.164       0.028       1.176 
